@@ -1,14 +1,16 @@
 import './App.css'
-import { AgGridReact } from 'ag-grid-react'; // React Grid Logic
-import "ag-grid-community/styles/ag-grid.css"; // Core CSS
-import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
+import { AgGridReact } from 'ag-grid-react';
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useState, useEffect, useMemo } from 'react';
+import { AiTwotoneLike } from "react-icons/ai";
+import { AiTwotoneDislike } from "react-icons/ai";
 
 function App() {
   const [rowData, setRowData] = useState([]);
 
   const [colDefs, setColDefs] = useState([
-    { field: "id", sortable: true, filter: true },
+    { field: "id", sortable: true, filter: true, headerName: "ID" },
     { field: "title", sortable: true, filter: true },
     {
       field: "tags",
@@ -20,15 +22,20 @@ function App() {
     },
     { field: "difficultyTitle", sortable: true, filter: true },
     {
-      field: "likesCount",
       headerName: "Rating",
       sortable: true,
       filter: true,
-      valueGetter: (params) => {
-        const likesCount = params.data.likesCount || 0;
-        const dislikeCount = params.data.dislikeCount || 0;
-        return `Like ${likesCount} / Dislike ${dislikeCount}`;
-      },
+      cellRenderer: (params) => {
+        const likesCount = (params.data.likesCount || 0);
+        const dislikesCount = (params.data.dislikesCount || 0);
+        return <>
+          <AiTwotoneLike />
+          <span>{likesCount}</span>
+          <AiTwotoneDislike />
+          <span>{dislikesCount}</span>
+
+        </>
+      }
     },
     { field: "solved", sortable: true, filter: true },
   ]);
@@ -45,14 +52,16 @@ function App() {
   }, [])
 
   return (
-    <div className="ag-theme-quartz" style={{height: 500}}>
-      <AgGridReact 
-        rowData={rowData} 
-        columnDefs={colDefs}
-        defaultColDef={defaultColDef}
-        rowSelection='multiple'
-        animateRows={true}
-      />
+    <div style={{display: 'flex', justifyContent: 'center'}}>
+      <div className="ag-theme-alpine" style={{height: 500, width: "91%"}}>
+        <AgGridReact
+          rowData={rowData} 
+          columnDefs={colDefs}
+          defaultColDef={defaultColDef}
+          rowSelection='multiple'
+          animateRows={true}
+        />
+      </div>
     </div>
   )
 }
