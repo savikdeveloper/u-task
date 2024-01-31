@@ -6,6 +6,9 @@ import { useState, useEffect, useMemo } from 'react';
 import { AiTwotoneLike } from "react-icons/ai";
 import { AiTwotoneDislike } from "react-icons/ai";
 
+import { BsCheckCircle } from "react-icons/bs";
+import { VscError } from "react-icons/vsc";
+
 function App() {
   const [rowData, setRowData] = useState([]);
 
@@ -14,10 +17,11 @@ function App() {
     { field: "title", sortable: true, filter: true },
     {
       field: "tags",
+      width: 330,
       headerName: "Tags",
-      valueFormatter: (params) => {
-        const tagNames = params.value.map(tag => tag.name).join(", ");
-        return tagNames;
+      cellRenderer: (params) => {
+        const tagNames = params.value.map((tag, index) => <span className='tags' key={index}>{tag.name}</span>);
+        return <div>{tagNames}</div>;
       },
     },
     { field: "difficultyTitle", sortable: true, filter: true },
@@ -33,11 +37,23 @@ function App() {
           <span>{likesCount}</span>
           <AiTwotoneDislike />
           <span>{dislikesCount}</span>
-
         </>
       }
     },
-    { field: "solved", sortable: true, filter: true },
+    { 
+      field: "solved",
+      headerName: "Attemps",
+      sortable: true, 
+      filter: true, 
+      cellRenderer: (params) => {
+        const likesCount = (params.data.solved || 0);
+        const dislikesCount = (params.data.notSolved || 0);
+        return <>
+          <span style={{color: 'green'}}><BsCheckCircle /></span>
+          <span>{likesCount}</span> / <span style={{color: 'red'}}><VscError /></span><span>{dislikesCount}</span>
+        </>
+      }
+    },
   ]);
 
   const defaultColDef = useMemo(() => ({
@@ -53,7 +69,7 @@ function App() {
 
   return (
     <div style={{display: 'flex', justifyContent: 'center'}}>
-      <div className="ag-theme-alpine" style={{height: 500, width: "91%"}}>
+      <div className="ag-theme-alpine" style={{height: 500, width: "100%"}}>
         <AgGridReact
           rowData={rowData} 
           columnDefs={colDefs}
