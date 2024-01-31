@@ -11,7 +11,8 @@ import { VscError } from "react-icons/vsc";
 
 function App() {
   const [rowData, setRowData] = useState([]);
-
+  const params = new URLSearchParams(document.location.search);
+  console.log(params.get("page"));
   const [colDefs, setColDefs] = useState([
     { field: "id", sortable: true, filter: true, headerName: "ID" },
     { field: "title", sortable: true, filter: true },
@@ -62,14 +63,14 @@ function App() {
   }), [])
 
   useEffect(() => {
-    fetch('https://kep.uz/api/problems')
+    fetch(`https://kep.uz/api/problems?page=${params.get("page")}`)
       .then(result => result.json())
       .then(rowData => setRowData(rowData.data));
   }, [])
 
   return (
     <div style={{display: 'flex', justifyContent: 'center'}}>
-      <div className="ag-theme-alpine" style={{height: 500, width: "100%"}}>
+      <div className="ag-theme-alpine" style={{height: 550, width: "100%"}}>
         <AgGridReact
           rowData={rowData} 
           columnDefs={colDefs}
