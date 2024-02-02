@@ -4,18 +4,22 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useState, useEffect, useMemo } from 'react';
 import { AiTwotoneLike } from "react-icons/ai";
 import { AiTwotoneDislike } from "react-icons/ai";
-
 import { BsCheckCircle } from "react-icons/bs";
 import { VscError } from "react-icons/vsc";
 import { useHistory } from 'react-router-dom';
+import { Pagination } from 'antd';
 
 function Table() {
   const [rowData, setRowData] = useState([]);
   const queryParams = new URLSearchParams(document.location.search);
   const [pageParam, setPageParam] = useState(queryParams.get("page") || 1)
   const [pageCount, setPageCount] = useState();
-  const [nextBtnDisabled, setNextBtnDisabled] = useState(false)
-  const [prevBtnDisabled, setPrevBtnDisabled] = useState(false)
+
+  const handlePageChange = (page) => {
+    setPageParam(page);
+    history.push(`/?page=${page}`);
+  };
+
   const [colDefs, setColDefs] = useState([
     { field: "id", sortable: true, filter: true, headerName: "ID" },
     { field: "title", sortable: true, filter: true },
@@ -72,44 +76,16 @@ function Table() {
   }), [])
 
   const history = useHistory();
-  const nextBtnFunc = () => {
-    if(parseInt(pageParam) >= pageCount) {
-      setNextBtnDisabled(true)
-    }
-    else {
-      setNextBtnDisabled(false)
-    }
-  }
-  const prevBtnFunc = () => {
-    if(parseInt(pageParam) <= 1) {
-      setPrevBtnDisabled(true)
-    }
-    else {
-      setPrevBtnDisabled(false)
-    }
-  }
   
   const fetchData = async() => {
     await fetch(`https://kep.uz/api/problems?page=${pageParam}`)
       .then(result => result.json())
       .then(rowData => (setRowData(rowData.data), setPageCount(rowData.pagesCount)));
-    await nextBtnFunc();
-    await prevBtnFunc();
   } 
 
   useEffect(() => {
     fetchData();
   }, [pageParam])
-  
-  const handleNextPage = (e) => {
-    setPageParam(parseInt(pageParam) +1)
-    history.push(`/?page=${parseInt(pageParam) + 1}`);
-  }
-  console.log(pageParam)
-  const handlePrevPage = () => {
-    setPageParam(parseInt(pageParam) -1)
-    history.push(`/?page=${parseInt(pageParam) - 1}`);
-  }
   
   return (
     <>
@@ -123,10 +99,8 @@ function Table() {
           />
         </div>
       </div>
-      <div>
-        <button disabled={prevBtnDisabled} onClick={handlePrevPage}>Prev</button>
-        <span>{pageParam} / {pageCount}</span>
-        <button disabled={nextBtnDisabled} onClick={handleNextPage}>Next</button>
+      <div className='pagination_container'>
+        <Pagination current={parseInt(pageParam)} onChange={handlePageChange} pageSizeOptions={[10]} total={810} />
       </div>
     </>
   )

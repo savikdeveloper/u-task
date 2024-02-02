@@ -13,6 +13,7 @@
     "ag-grid-community": "^31.0.3",
     "ag-grid-enterprise": "^31.0.3",
     "ag-grid-react": "^31.0.3",
+    "antd": "^5.13.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",
