@@ -14,6 +14,7 @@ function Table() {
   const queryParams = new URLSearchParams(document.location.search);
   const [pageParam, setPageParam] = useState(queryParams.get("page") || 1)
   const [pageCount, setPageCount] = useState();
+  const [orderSort, setOrderSort] = useState('')
 
   const handlePageChange = (page) => {
     setPageParam(page);
@@ -21,13 +22,13 @@ function Table() {
   };
 
   const [colDefs, setColDefs] = useState([
-    { field: "id", sortable: true, filter: true, headerName: "ID" },
+    { field: "id", sortable: true, headerName: "ID" },
     { field: "title", sortable: true, filter: true },
     {
       field: "tags",
       width: 330,
       headerName: "Tags",
-      sortable: true,
+      sortable: false,
       filter: false,
       cellRenderer: (params) => {
         const tagNames = params.value.map((tag, index) => <span className='tags' key={index}>{tag.name}</span>);
@@ -35,11 +36,17 @@ function Table() {
       },
     },
     { 
-      field: "difficultyTitle", 
+      field: "difficulty", 
       sortable: true, 
-      filter: true, 
+      filter: true,
+      cellRenderer: (params) => {
+        return <>
+          {params.data.difficultyTitle}
+        </>
+      }
     },
     {
+      field: "rating",
       headerName: "Rating",
       sortable: true,
       filter: false,
@@ -78,14 +85,14 @@ function Table() {
   const history = useHistory();
   
   const fetchData = async() => {
-    await fetch(`https://kep.uz/api/problems?page=${pageParam}`)
+    await fetch(`https://kep.uz/api/problems?ordering=${orderSort}&page=${pageParam}`)
       .then(result => result.json())
       .then(rowData => (setRowData(rowData.data), setPageCount(rowData.pagesCount)));
   } 
 
   useEffect(() => {
     fetchData();
-  }, [pageParam])
+  }, [pageParam, orderSort])
   
   return (
     <>
@@ -96,6 +103,22 @@ function Table() {
             columnDefs={colDefs}
             defaultColDef={defaultColDef}
             rowSelection='multiple'
+            sortingOrder={['asc', 'desc']}
+            onSortChanged={(sortModel) => {
+              const sort = sortModel.columns[0].sort;
+              const field = sortModel.columns[0].colId;
+              console.log(sort, field);
+              let checkSort;
+
+              if(sort == 'asc') {
+                checkSort = true;
+              }
+              if(sort == 'desc') {
+                checkSort = false;
+              }
+              console.log(checkSort);
+              setOrderSort(checkSort ? `${field}` : `-${field}`)
+            }}
           />
         </div>
       </div>
