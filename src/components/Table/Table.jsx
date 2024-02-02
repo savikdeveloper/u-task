@@ -14,7 +14,7 @@ function Table() {
   const queryParams = new URLSearchParams(document.location.search);
   const [pageParam, setPageParam] = useState(queryParams.get("page") || 1)
   const [pageCount, setPageCount] = useState();
-  const [orderSort, setOrderSort] = useState('')
+  const [orderSort, setOrderSort] = useState('id')
   const [getSearch, setGetSearch] = useState('');
 
   const handlePageChange = (page) => {
