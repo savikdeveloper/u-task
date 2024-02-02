@@ -15,6 +15,7 @@ function Table() {
   const [pageParam, setPageParam] = useState(queryParams.get("page") || 1)
   const [pageCount, setPageCount] = useState();
   const [orderSort, setOrderSort] = useState('')
+  const [getSearch, setGetSearch] = useState('');
 
   const handlePageChange = (page) => {
     setPageParam(page);
@@ -22,7 +23,7 @@ function Table() {
   };
 
   const [colDefs, setColDefs] = useState([
-    { field: "id", sortable: true, headerName: "ID" },
+    { field: "id", sortable: true, filter: false, headerName: "ID" },
     { field: "title", sortable: true, filter: true },
     {
       field: "tags",
@@ -38,12 +39,10 @@ function Table() {
     { 
       field: "difficulty", 
       sortable: true, 
-      filter: true,
-      cellRenderer: (params) => {
-        return <>
-          {params.data.difficultyTitle}
-        </>
-      }
+      filter: false,
+      cellRenderer: (params) => (
+        <span className={`difficulty difficulty${params.data.difficulty}`} >{params.data.difficultyTitle}</span>
+      )
     },
     {
       field: "rating",
@@ -85,14 +84,14 @@ function Table() {
   const history = useHistory();
   
   const fetchData = async() => {
-    await fetch(`https://kep.uz/api/problems?ordering=${orderSort}&page=${pageParam}`)
+    await fetch(`https://kep.uz/api/problems?ordering=${orderSort}&page=${pageParam}&title=${getSearch}`)
       .then(result => result.json())
       .then(rowData => (setRowData(rowData.data), setPageCount(rowData.pagesCount)));
   } 
 
   useEffect(() => {
     fetchData();
-  }, [pageParam, orderSort])
+  }, [pageParam, orderSort, getSearch])
   
   return (
     <>
@@ -118,6 +117,16 @@ function Table() {
               }
               console.log(checkSort);
               setOrderSort(checkSort ? `${field}` : `-${field}`)
+            }}
+            onFilterChanged={(params) => {
+              const filters = params.api.getFilterModel();
+              if(filters.title) {
+                console.log(filters.title)
+                setGetSearch(filters.title.filter);
+              }
+              else {
+                setGetSearch('')
+              }
             }}
           />
         </div>
